@@ -1,0 +1,184 @@
+////////////////////////////////////////////////////////////////
+ __  __                     _          __  __
+|  \/  |                   | |        |  \/  |
+| \  / | __ _ _ __  _   _  | |_ ___   | \  / | __ _ _ __  _   _
+| |\/| |/ _` | '_ \| | | | | __/ _ \  | |\/| |/ _` | '_ \| | | |
+| |  | | (_| | | | | |_| | | || (_) | | |  | | (_| | | | | |_| |
+|_|  |_|\__,_|_| |_|\__, |  \__\___/  |_|  |_|\__,_|_| |_|\__, |
+                    __/ |                                 __/ |
+                   |___/                                 |___/
+                                  Many to Many Notes by >>> bern
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+                    /////////// Key \\\\\\\\\
+                          ➕ Edit File
+                          🎮 console command
+                    /////////////\\\\\\\\\\\\\
+
+has_and_belongs_to_many -> you don't need a model for the join table
+Rails allows us to not do any join queries
+❌ ☝️ inadvisable, because you cannot access the joined table
+
+One to many association
+|Question|-<|Like|>-|User|
+
+ ✅ 👇 Proper way
+ has_many :through
+
+🎮 >>> rails g model like user:references question:references
+      spring stop -> to fix error in cache
+      spring is a gem that caches in memory state of rails app
+🎮 >>> rails db:migrate
+
+check in console if things work
+
+➕ Open User model -> user.rb
+  has_many :likes, dependent: :destroy
+  👆 destroy likes if user is deleted
+
+➕ Open Question model -> question.rb
+  has_many :likes, dependent: :destroy
+
+🎮 in rails console -> reload!
+
+➕ Open User model -> user.rb
+      has_many :liked_questions, through: likes, source: :question
+               through likes is the join table 👆, source is the other table we are trying to reach
+
+➕ Open Question model -> question.rb
+      has_many :likers, through: :likes, source: :user
+🎮 -> rails console
+      q = Question.first
+      q.likers << User.last
+      u = User.last
+      all questions the user has liked -> u.liked_questions.create(title: "What do you like", body: "things and stuff")
+      u.questions.create
+      likes -> all likes
+      likes << (object)
+      likes = (objects)
+      likes_singular_ids
+      likes.size -> count
+      likes.where
+      likes.exists?
+      likes.find
+➕ Open like model ->like.rb
+    # validation guarantees a user can only like a question once
+      validates :question_id, uniqueness: {scope: :user_id}
+🎮 -> reload!
+      u = User.last
+      u.likes.create(question: Question.first)
+       -> didn't rollback 🤔
+       👇 try again
+       l = Like.new(user: User.first, question: Question.first)
+       l.save
+       ☑️ ROLLBACK! ->it worked!
+       l.errors -> question_id has already been taken
+
+➕ Show.html.erb
+       <%= link_to "Like", question_likes_path(@question), method: :post %>
+
+➕ routes
+       resources :likes, only: [:create, :destroy]
+
+🎮 create likes controller -> rails g controller likes create destroy --skip-template-engine --skip-assets
+
+➕ delete created likes routes in routes.rb
+
+➕ likes controller
+
+➕ show
+      <%# pluralize is a helper method that takes a number as first argument a d a word
+      as a second argument. It will pluralize the word based on the queantity represented
+      by the first argument. Finally, it will return them joined together
+      (e.g pluralize(6, 'dog') # return '6 dogs')  %>
+      (<%= pluralize @question.likes.count, 'like' %>)
+
+
+      <!--  look for likes associated with user -->
+      <% like = @question.likes.find_by(user: current_user)  %>
+
+
+➕ likes controller
+  destroy method write it
+
+➕  in show add
+      <% if user_signed_in?  %>
+        <% if like.present?  %>
+          <%= link_to "Un-Like", like_path(like), method: :delete %>
+        <% else  %>
+          <%= link_to "Like", question_likes_path(@question), method: :post %>
+        <% end  %>
+      <% end  %>
+
+➕ likes controller
+      before_action :authenticate_user!
+
+➕ block people from liking their own things -> ability.rb
+      # cannot only defines the ability for the cannot?() method
+      cannot :like, Question do |q|
+        user == q.user
+      end
+      # can defines the ability for the can?() method
+      can :like, Question do |q|
+        user != q.user
+      end
+
+➕ likes controller
+        if cannot? :like, @question
+          redirect_to question_path(@question), alert: 'Liking your own question isn\'t allowed'
+          # redirect_to and render does not prevent the rest of the method from executing
+          # calling redirect_to and/or render twice or more in an action will cause an error
+          # 👇 do an early return in an action if the rest of the code should not be executed
+          return
+        end
+➕ show.html.erb
+      edit line 7 to add cancan validation
+        <% if user_signed_in? && can?(:like, @question) %>
+
+➕ edit destroy method in likes controller
+      if cannot? :like, @like.question
+        redirect_to question_path(@like.question), alert: 'Un-Liking your own question isn\'t allowed'
+        return
+      end
+
+/////   Refactoring code   \\\\\
+1. Query inside view ❌
+      add instance method to question model to check if that user liked that question
+
+➕ question model define new instance method
+
+        def liked_by?(user)
+          # exists? returns true if the query in the argument returns something
+          # it reutrs true if there is a like with the user reference 'user'
+          likes.exists?(user: user)
+        end
+
+        def like_for(user)
+          # find any like that has a user reference of current user
+          likes.find_by(user: user)
+        end
+
+
+➖ in show delete
+  <% like = @question.likes.find_by(user: current_user)  %>
+  change for👇
+  <% if @question.liked_by?(current_user)  %>
+    <%= link_to "Un-Like", like_path(@question.like_for(current_user)), method: :delete %>
+  <% else  %>
+
+
+2. create likes views
+
+➕ routes
+        resources :users, only: [:new, :create] do
+          resources :likes, only: [:index]
+        end
+➕ likes controller  define index method
+        def index
+            @user = User.find(params[:user_id])
+            @questions = @user.liked_questions
+        end
+
+➕ create a view app/views/likes/index.html.erb -> edit file
+➕ to edit like button in show
+          <%= link_to '<i class="fa fa-thumbs-down" aria-hidden="true"></i>'.html_safe, like_path(@question.like_for(current_user)), method: :delete %>

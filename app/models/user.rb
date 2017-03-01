@@ -14,6 +14,8 @@ class User < ApplicationRecord
   has_secure_password
 
   has_many :questions, dependent: :nullify
+  has_many :liked_questions, through: :likes, source: :question
+  has_many :likes, dependent: :destroy
 
   before_validation :downcase_email
 
