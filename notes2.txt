@@ -17,4 +17,119 @@
 
 Implement votes -> need to register if it is a vote up or down -> Use boolean
 
-rails g model vote user:references question:references is_up:boolean
+🎮 rails g model vote user:references question:references is_up:boolean
+🎮 rails db:migrate
+do we need an index on the migration ?
+    # this type of index is a composite index, where we're indexing in more than one field
+    # its a good idea to put such index of our queries incluidng both user_id and question_id in them
+    # add_index :votes, [:user_id, :question_id]
+    if you fetch votes from a voter -> use normal index
+    if query select from user_id and question_id-> use composite index
+
+➕ vote.rb model ->> add validations
+    validates :question_id, uniqueness: { scope: :user_id }
+
+➕ question.rb model ->>
+    has_many :votes, dependent: :destroy
+    has_many :voters, through: :votes, source: :user
+
+➕ user.rb model ->>
+    has_many :votes, dependent: :destroy
+    has_many :voted_questions, through: :votes, source: :question
+
+🎮 rails g controller votes
+edit routes
+  resources :votes, only: [:create, :update, :destroy]
+  we do shallow because we pass user with user_id, not through the url
+
+➕ edit votes controller
+  add methods create, update, destroy
+
+➕ edit question.rb
+  def voted_by?(user)
+    votes.exists?(user: user)
+  end
+  def vote_for(user)
+    # votes.find_by_user_id user.id ->always gives you one
+    # where gives you a collection
+    votes.find_by(user: user)
+  end
+
+➕ edit question.rb model
+    remove voted_by? method since we aren't using it
+
+
+never define variables in model
+move them to controller show
+  @vote = @question.vote_for(current_user)
+
+
+➕ edit show
+  <% if @vote.nil? %>
+  <%= link_to 'Vote Up', question_votes_path(@question, {is_up: true}), method: :post %>
+  <%# button_to 'Vote Up', question_votes_path(@question, {is_up: true})%>
+  <%= link_to 'Vote Down', question_votes_path(@question, {is_up: false}), method: :post %>
+  <% elsif @vote.is_up? %>
+    <%= link_to 'Un-do Vote Up', vote_path(@vote), method: :delete %>
+    <%= link_to 'Vote Down', vote_path(@vote, {is_up: false}), method: :patch %>
+  <% else %>
+    <%= link_to 'Vote Up', vote_path(@vote, {is_up: true}), method: :patch %>
+    <%= link_to 'Un-do Vote Down', vote_path(@vote), method: :delete %>
+  <% end %>
+
+➕ Helper method to avoid creating two instance variables
+  # def current_vote
+  #   @current_vote ||= @question.vote_for(current_user)
+  # end
+  # helper_method :current_vote
+
+➕ability.rb
+  can :vote, Question do |q|
+    user != q.user
+  end
+  cannot :vote, Question do |q|
+    user == q.user
+  end
+
+➕ votes controller
+
+➕ check in terminal that user cannot update-> how?
+  v = Vote.find 14
+  change user id
+  v.user_id = 1
+  v.save
+  in website try to un-like -> now it isn't allowed
+
+➕ show
+(<%= @question.votes_total %>)
+➕ question.rb
+  def votes_total
+    votes.where(is_up: true).count - votes.where(is_up: false).count
+  end
+
+
+📝 count -> db gives you back count -> a number
+📝 length -> db gives you back an array of results
+  when you can delegate something to database always do it,
+  its faster than javascript and Rails
+  always delegate to db its better
+
+
+➕ vote.rb
+  def self.up
+    where(is_up: true)
+  end
+
+  def self.down
+    where(is_up: false)
+  end
+
+➕ question.rb
+  def votes_total
+     votes.up.count - votes.down.count
+  end
+
+/////////////TAGGING QUESTIONS\\\\\\\\\\\\
+
+to add foregint key tags must exist
+rails g model tag name

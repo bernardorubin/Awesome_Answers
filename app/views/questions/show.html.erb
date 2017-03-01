@@ -9,6 +9,25 @@
     <%= link_to '<i class="fa fa-thumbs-up" aria-hidden="true"></i>'.html_safe, question_likes_path(@question), method: :post %>
   <% end  %>
 <% end  %>
+
+<!-- Many to many part 2 -->
+<%# if !@question.voted_by?(current_user) -> we are no longer using voted_by? delete it from models question%>
+<% if @vote.nil? %>
+<%= link_to 'Vote Up', question_votes_path(@question, {is_up: true}), method: :post %>
+<%# button_to 'Vote Up', question_votes_path(@question, {is_up: true})%>
+<%= link_to 'Vote Down', question_votes_path(@question, {is_up: false}), method: :post %>
+<% elsif @vote.is_up? %>
+  <%= link_to 'Un-do Vote Up', vote_path(@vote), method: :delete %>
+  <%= link_to 'Vote Down', vote_path(@vote, {is_up: false}), method: :patch %>
+<% else %>
+  <%= link_to 'Vote Up', vote_path(@vote, {is_up: true}), method: :patch %>
+  <%= link_to 'Un-do Vote Down', vote_path(@vote), method: :delete %>
+<% end %>
+
+(<%= @question.votes_total %>)
+<!-- Many to many part 2 ends -->
+
+
 <%# pluralize is a helper method that takes a number as first argument a d a word
 as a second argument. It will pluralize the word based on the queantity represented
 by the first argument. Finally, it will return them joined together

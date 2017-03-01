@@ -33,6 +33,7 @@ class QuestionsController < ApplicationController
 
   def show
     @answer = Answer.new
+    @vote = @question.vote_for(current_user)
   end
 
   def index
@@ -56,6 +57,11 @@ class QuestionsController < ApplicationController
   end
 
   private
+
+  # def current_vote
+  #   @current_vote ||= @question.vote_for(current_user)
+  # end
+  # helper_method :current_vote
 
   def question_params
     # this feature is called strong parameters (introduced in Rails 4+)
