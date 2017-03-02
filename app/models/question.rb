@@ -27,6 +27,9 @@ class Question < ApplicationRecord
   has_many :votes, dependent: :destroy
   has_many :voters, through: :votes, source: :user
 
+  has_many :taggings, dependent: :destroy
+  has_many :tags, through: :taggings
+
   has_many :answers, lambda { order(created_at: :desc) }, dependent: :destroy
   belongs_to :user
 

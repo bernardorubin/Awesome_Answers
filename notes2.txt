@@ -59,9 +59,9 @@ edit routes
     remove voted_by? method since we aren't using it
 
 
-never define variables in model
-move them to controller show
-  @vote = @question.vote_for(current_user)
+📝 never define variables in model
+➕ move them to controller show
+    @vote = @question.vote_for(current_user)
 
 
 ➕ edit show
@@ -101,12 +101,12 @@ move them to controller show
   in website try to un-like -> now it isn't allowed
 
 ➕ show
-(<%= @question.votes_total %>)
+  (<%= @question.votes_total %>)
+
 ➕ question.rb
   def votes_total
     votes.where(is_up: true).count - votes.where(is_up: false).count
   end
-
 
 📝 count -> db gives you back count -> a number
 📝 length -> db gives you back an array of results
@@ -114,12 +114,10 @@ move them to controller show
   its faster than javascript and Rails
   always delegate to db its better
 
-
 ➕ vote.rb
   def self.up
     where(is_up: true)
   end
-
   def self.down
     where(is_up: false)
   end
@@ -131,5 +129,53 @@ move them to controller show
 
 /////////////TAGGING QUESTIONS\\\\\\\\\\\\
 
-to add foregint key tags must exist
+to add foreign key tags must exist
 rails g model tag name
+rails g model tagging question:references tag:references
+rails db:migrate
+
+🎮 ->> in console
+  q = Question.find 16
+  q.voters
+  q.voter_ids
+  q.voter_ids = [1,2,3] -> appends users as voters to q
+
+➕ seeds
+➕ tag.rb
+  has_many :taggings, dependent: :destroy
+  has_many :questions, through: :taggings
+
+  validates :name, presence: true, uniqueness: true
+➕question.rb
+  has_many :taggings, dependent: :destroy
+  has_many :tags, through: :taggings
+
+🎮 ->> in console
+  Tag.all
+  q = Question.last
+  q.tags
+  q.tag_ids
+  q.tag_ids = [4,6,7]
+  q.tag_ids = [4,9,10]
+    -> 2 deletes, one insertion
+
+➕_form.html.erb ->collection check boxes
+  http://apidock.com/rails/v4.0.2/ActionView/Helpers/FormOptionsHelper/collection_check_boxes
+  http://api.rubyonrails.org/classes/ActionView/Helpers/FormOptionsHelper.html
+  <div>
+  <%= f.label :tag_ids %>
+  <%= f.collection_check_boxes :tag_ids, Tag.all, :id, :name %>
+  </div>
+
+➕ to customize html
+  <%= link_to 'hello', 'http://google.com' %>
+  <%= link_to 'http://google.com' do %>
+   <span>hello</span>
+  <% end %>
+
+➕QuestionsController
+  def question_params
+    # { tag_ids: [] } will tell Rails to accept and array of value for `tag_ids`
+    # instead of a single value
+    params.require(:question).permit([:title, :body, {tag_ids: []}])
+  end
