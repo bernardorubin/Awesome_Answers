@@ -1,0 +1,29 @@
+
+How to implement Chosen jquery on rails
+
+🔗 Chosen jQuery plugin >> https://harvesthq.github.io/chosen/
+🔗 Gem -> https://github.com/tsechingho/chosen-rails
+
+💎 add in gemfile >> gem 'chosen-rails'
+➕ in application.js load after jquery and before our files >> //= require chosen-jquery
+➕ application.css >>  *= require chosen
+
+🔗 translate coffescript >> http://js2.coffee/
+🔗 collection select >> http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select
+🔗 better collection select source >> http://api.rubyonrails.org/classes/ActionView/Helpers/FormOptionsHelper.html
+➕_form.html.erb >>
+              f.collection_select
+            html options->  { multiple: true }
+
+//////////////////////////////////////////////////////////////////
+            ███████╗███╗   ███╗ █████╗ ██╗██╗
+            ██╔════╝████╗ ████║██╔══██╗██║██║
+            █████╗  ██╔████╔██║███████║██║██║
+            ██╔══╝  ██║╚██╔╝██║██╔══██║██║██║
+            ███████╗██║ ╚═╝ ██║██║  ██║██║███████╗
+            ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚══════╝
+//////////////////////////////////////////////////////////////////
+
+➕ create file inside initializer folder
+
+  

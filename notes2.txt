@@ -21,7 +21,7 @@ Implement votes -> need to register if it is a vote up or down -> Use boolean
 🎮 rails db:migrate
 do we need an index on the migration ?
     # this type of index is a composite index, where we're indexing in more than one field
-    # its a good idea to put such index of our queries incluidng both user_id and question_id in them
+    # its a good idea to put such index of our queries including both user_id and question_id in them
     # add_index :votes, [:user_id, :question_id]
     if you fetch votes from a voter -> use normal index
     if query select from user_id and question_id-> use composite index
@@ -167,7 +167,7 @@ rails db:migrate
   <%= f.collection_check_boxes :tag_ids, Tag.all, :id, :name %>
   </div>
 
-➕ to customize html
+➕ to customize html(not part of the actual instructions on tagging questions)
   <%= link_to 'hello', 'http://google.com' %>
   <%= link_to 'http://google.com' do %>
    <span>hello</span>
