@@ -24,6 +24,16 @@ How to implement Chosen jquery on rails
             ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚══════╝
 //////////////////////////////////////////////////////////////////
 
-➕ create file inside initializer folder
+➕ create file config/initializers/setup_mail.rb
+    executed once, if changed you have to restart server
+➕ .gitignore
+    config/initializers/app_keys.rb
 
-  
+
+rails g mailer answers_mailer
+
+create two views in answers_mailer
+
+def notify_question_owner
+  mail(to: 'bernardorubin@gmail.com', subject: 'test')
+end
