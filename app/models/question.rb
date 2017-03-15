@@ -1,5 +1,12 @@
 class Question < ApplicationRecord
   attr_accessor :abc
+  extend FriendlyId
+  mount_uploader :image, ImageUploader
+  # history option will keep a history for the slugs in the
+  # friendly_id_slugs table which support slugs that were used before for the model
+  # finders option will make so that Question.find will work if you give it a slug instead of an id
+  # (Otherwise you would have to use Question.friendly.find)
+  friendly_id :title, use: [:slugged, :history, :finders]
 
   # this sets up one-to-many association between the question and the answer
   # in this case a question has many answers (note that to set a one-to-many
@@ -83,6 +90,10 @@ class Question < ApplicationRecord
   def votes_total
      votes.up.count - votes.down.count
   end
+
+  # def to_param
+  #   "#{id}-#{title}".parameterize
+  # end
 
   private
 

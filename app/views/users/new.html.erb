@@ -1,25 +1,36 @@
 <h1>Sign Up</h1>
-<%= @user.errors.full_messages.join(', ') %>
-<%= form_for @user do |f| %>
+<%# without simpleform👇 %>
+<%# @user.errors.full_messages.join(', ')
+<%= form_for @user do |f|
   <div>
-    <%= f.label :first_name %>
-    <%= f.text_field :first_name %>
+    <%= f.label :first_name
+    <%= f.text_field :first_name
   </div>
   <div>
-    <%= f.label :last_name %>
-    <%= f.text_field :last_name %>
+    <%= f.label :last_name
+    <%= f.text_field :last_name
   </div>
   <div>
-    <%= f.label :email %>
-    <%= f.email_field :email %>
+    <%= f.label :email
+    <%= f.email_field :email
   </div>
   <div>
-    <%= f.label :password %>
-    <%= f.password_field :password %>
+    <%= f.label :password
+    <%= f.password_field :password
   </div>
   <div>
-    <%= f.label :password_confirmation %>
-    <%= f.password_field :password_confirmation %>
+    <%= f.label :password_confirmation
+    <%= f.password_field :password_confirmation
   </div>
-  <%= f.submit 'Sign Up' %>
+  <%= f.submit 'Sign Up'
+<% end %>
+
+<%# with simple form 👇%>
+<%= simple_form_for @user do |f| %>
+  <%= f.input :first_name %>
+  <%= f.input :last_name %>
+  <%= f.input :email %>
+  <%= f.input :password %>
+  <%= f.input :password_confirmation %>
+  <%= f.submit 'Sign Up', class: 'btn btn-primary' %>
 <% end %>

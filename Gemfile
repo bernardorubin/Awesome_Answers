@@ -4,7 +4,12 @@ git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
   "https://github.com/#{repo_name}.git"
 end
-
+gem 'fog'
+gem "mini_magick"
+gem 'carrierwave'
+gem 'bootstrap-sass', '~> 3.3.6'
+gem 'simple_form'
+gem 'friendly_id'
 gem 'rack-cors', require: 'rack/cors'
 gem 'active_model_serializers'
 gem 'delayed_job_active_record'

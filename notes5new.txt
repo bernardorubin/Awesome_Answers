@@ -1,0 +1,139 @@
+question.rb
+  def to_param
+    "#{id}-#{title}".parameterize
+  end
+adds the title of the question to the url for better SEO
+
+
+💎 friendly id Gem
+🔗 https://github.com/norman/friendly_id
+
+slug ->> in the url the last part "/726-name"
+gemfile >>
+  gem 'friendly_id'
+
+💻 rails generate friendly_id
+
+
+in migration see 👀
+  this is a polymorphic association
+    t.integer  :sluggable_id,   :null => false
+    t.string   :sluggable_type, :limit => 50
+this helps us take friendly id and plug it to any model
+
+
+rails g migration add_slug_to_questions slug:string:uniq
+
+
+migrate
+
+question.rb
+    extend FriendlyId
+    friendly_id :title, use: [:slugged, :history]
+
+it uses to_param, so comment out the previous one we created
+
+
+test in rails console ->
+Question.create(title: 'test', body:'hello', user: User.last)
+Question.find_each(&:save)
+☝️ the same as 👇
+Question.all.each{|q| q.save}
+
+
+"/name" only -> wont use id anymore so we add finders in model
+    friendly_id :title, use: [:slugged, :history, :finders]
+
+bundle update friendly_id if you have problems
+
+
+questions controller in update
+      @question.slug = nil
+
+
+///////////////////////////////////////////////////////////////
+Simple Form 💎
+🔗 https://github.com/plataformatec/simple_form
+gemfile
+
+gem 'simple_form'
+rails generate simple_form:install --bootstrap
+
+///////////////////////////////////////////////////////////////
+Bootstrap sass 💎
+
+🔗 https://github.com/twbs/bootstrap-sass
+gem 'bootstrap-sass', '~> 3.3.6'
+
+create bootstrap_and_overrides.scss
+  @import "bootstrap-sprockets";
+  @import "bootstrap";
+
+bundle
+
+in application.css
+  *= require bootstrap_and_overrides
+////////////////////////////////////////////////////////////////
+
+question form
+new user form
+
+
+remove turbolinks from main css file if there
+
+
+/////////////////////////////////////////////////////////////////
+SASS
+questions.scss
+
+
+/////////////////////////////////////////////////
+🔗 https://github.com/carrierwaveuploader/carrierwave/wiki
+carrierwave gem
+
+rails generate uploader image
+
+rails g migration add_image_to_questions
+
+
+question.rb
+  mount_uploader :image, ImageUploader
+
+in image_uploader.rb uncomment
+  def extension_whitelist
+    %w(jpg jpeg gif png)
+  end
+
+
+
+in question controller add params
+:image
+questions_form add
+  <%= f.input :image %>
+
+  in gitignore
+
+
+  question show
+  <%= image_tag @question.image.url %>
+
+
+in question index
+
+
+gem minimagic
+
+brew install imagemagick
+
+gem "mini_magick"
+
+/////////////////////////////
+
+AWS
+
+
+gem 'fog'
+
+aws click services
+s3 
+create a bucket

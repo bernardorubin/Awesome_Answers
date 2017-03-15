@@ -10,6 +10,8 @@
   <% end  %>
 <% end  %>
 
+<%= image_tag @question.image.url if @question.image.present?%>
+
 <!-- Many to many part 2 -->
 <%# if !@question.voted_by?(current_user) -> we are no longer using voted_by? delete it from models question%>
 <% if @vote.nil? %>
@@ -51,10 +53,16 @@ by the first argument. Finally, it will return them joined together
     If it's not persisted, the URL generated will be:
      question_answers_path(@question). If it's persisted then the URL will be:
      question_answer_path(@question, @answer) %>
-<%= @answer.errors.full_messages.join(', ') %>
-<%= form_for [@question, @answer] do |f| %>
-  <%= f.text_area :body %>
-  <%= f.submit %>
+<%# @answer.errors.full_messages.join(', ')
+<%= form_for [@question, @answer] do |f|
+  <%= f.text_area :body
+  <%= f.submit
+<% end %>
+
+
+<%= simple_form_for [@question, @answer] do |f| %>
+  <%= f.input :body, label: false, hint: 'at least 5 characters' %>
+  <%= f.submit class: 'btn btn-primary' %>
 <% end %>
 
 <hr>
