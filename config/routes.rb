@@ -1,10 +1,16 @@
 Rails.application.routes.draw do
   # you map a HTTP verb / URL combo to a controller + action (method)
 
+  namespace :api, defaults: {format: :json} do
+    namespace :v1 do
+      resources :questions, only: [:show, :index, :create]
+    end
+  end
+
   # get({ '/' => 'welcome#index' })
   # get '/' => 'welcome#index', as: :root
   root 'welcome#index'
-
+  match "/delayed_job" => DelayedJobWeb, :anchor => false, via: [:get, :post]
   # resources :dashboard, only: [:index], controller: 'admin/dashboard'
 
   # this will make the url structure follow the folder structure of the

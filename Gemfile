@@ -4,6 +4,13 @@ git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
   "https://github.com/#{repo_name}.git"
 end
+
+gem 'rack-cors', require: 'rack/cors'
+gem 'active_model_serializers'
+gem 'delayed_job_active_record'
+gem "delayed_job_web"
+gem 'sinatra', '2.0.0.beta2'
+
 gem 'chosen-rails'
 gem 'faker'
 gem "font-awesome-rails"
@@ -45,6 +52,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'letter_opener'
   gem 'awesome_print'
   gem 'interactive_editor'
   gem 'hirb'

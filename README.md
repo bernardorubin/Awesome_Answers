@@ -1,24 +1,8 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+# Awesome Answers
 
-Things you may want to cover:
+## Setup instructions
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+1. Run `rails db:create db:migrate db:seed`
+2. Duplicate `config/initializers/app_keys.rb.example` to `config/initializers/app_keys.rb` and put proper credentials inside it

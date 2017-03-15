@@ -21,6 +21,7 @@ class User < ApplicationRecord
   has_many :voted_questions, through: :votes, source: :question
 
   before_validation :downcase_email
+  before_create :generate_api_key
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
   validates :email, presence: true,
@@ -35,5 +36,12 @@ class User < ApplicationRecord
 
   def downcase_email
     self.email&.downcase!
+  end
+
+  def generate_api_key
+    loop do
+      self.api_key = SecureRandom.hex
+      break unless User.exists?(api_key: api_key)
+    end
   end
 end

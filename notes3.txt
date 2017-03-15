@@ -11,6 +11,14 @@ How to implement Chosen jquery on rails
 🔗 translate coffescript >> http://js2.coffee/
 🔗 collection select >> http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select
 🔗 better collection select source >> http://api.rubyonrails.org/classes/ActionView/Helpers/FormOptionsHelper.html
+➕ edit questions.coffee -> questions.js
+  $(document).ready(function(){
+    $('.chosen-select').chosen({
+      allow_single_deselect: true,
+      no_results_text: 'No results matched',
+      width: '200px'
+    });
+  });
 ➕_form.html.erb >>
               f.collection_select
             html options->  { multiple: true }
@@ -25,15 +33,112 @@ How to implement Chosen jquery on rails
 //////////////////////////////////////////////////////////////////
 
 ➕ create file config/initializers/setup_mail.rb
-    executed once, if changed you have to restart server
+    📝 executed once, if changed you have to restart server
+	ActionMailer::Base.smtp_settings = {
+  	address:              "smtp.gmail.com",
+  	port:                 "587",
+  	enable_starttls_auto: true,
+  	authentication:       :plain,
+  	user_name:            ENV["EMAIL_USER_NAME"],
+  	password:             ENV["EMAIL_PASSWORD"]
+	}
 ➕ .gitignore
-    config/initializers/app_keys.rb
+    /config/initializers/app_keys.rb
+➕ create app_keys.rb file
+	ENV["EMAIL_USER_NAME"] = 'answerawesome'
+	ENV["EMAIL_PASSWORD"] = 'Sup3r$ecret$$'
+
+💻 rails g mailer answers_mailer
+
+➕ create two views in answers_mailer and edit them
+
+➕ edit answersmailer
+  def notify_question_owner
+
+🎮
+  | AnswersMailer.notify_question_owner.deliver_now! ->check for an exception with bang
+  | AnswersMailer.notify_question_owner.deliver_now
+
+ans = Answer.last
+AnswersMailer.notify_question_owner(ans).deliver_now!
+
+➕ config environments development.rb
+  config.action_mailer.default_url_options = { host: "localhost:3000" }
 
 
-rails g mailer answers_mailer
+🎮 ans.question.user
+AnswersMailer.notify_question_owner(@answer).deliver_now
 
-create two views in answers_mailer
+💻 to see console history in terminal
+  atom ~/.irbhistory
 
-def notify_question_owner
-  mail(to: 'bernardorubin@gmail.com', subject: 'test')
-end
+➕ answers controller
+  AnswersMailer.notify_question_owner(@answer).deliver_now
+
+🎮  check environment in console
+    Rails.env >> development
+💎 gem letter opener
+    add to gemfile >>   gem 'letter_opener'
+🔗 https://github.com/ryanb/letter_opener
+
+➕ config environments development.rb
+    config.action_mailer.delivery_method = :letter_opener
+
+    //STYLING EMAILS >>
+      inline styling recommended 👍 >> sometimes mails remove the head
+      tables for layouts are better
+      Use -> sendgrid or mandrill in production instead of gmail
+      🔗 https://sendgrid.com/ ✅
+      🔗 http://www.mandrill.com/
+
+💎 premailer gem >> converts normal css styles to inline
+🔗 https://github.com/premailer/premailer
+
+
+ruby is blocking, it will wait for the email to send if we only have one server one thread
+💎 delayed job
+🔗 https://github.com/collectiveidea/delayed_job
+
+to visualize delayed job
+💎 delayed job web gem
+🔗 https://github.com/ejschmitt/delayed_job_web
+
+➕add to gemfile
+  gem "delayed_job_web"
+  gem 'delayed_job_active_record'
+
+💻 rails generate delayed_job:active_record
+  error!❌
+
+💎 update sinatra
+  in gemfile >> gem 'sinatra', '2.0.0.beta2'
+
+💻 bundle update sinatra
+
+💻 rails generate delayed_job:active_record
+
+📝 old rails migration->
+    self.up when your run rails db migrate
+    self.down when you rollback
+    now you just self.change
+
+💻 rails db:migrate
+
+➕ answers controller change deliver_now to deliver_later
+    AnswersMailer.notify_question_owner(@answer).deliver_later
+
+➕ config/application.rb
+    config.active_job.queue_adapter = :delayed_job
+
+How to check the queue
+  lets finish setup
+
+➕ add routes ->
+  match "/delayed_job" => DelayedJobWeb, :anchor => false, via: [:get, :post]
+  📝 match -> get or post or patch
+
+to see delayed jobs >>
+  ⏩ go to http://localhost:3000/delayed_job/
+
+to run it open a new process (tab)
+💻 rails jobs:work
