@@ -135,5 +135,11 @@ AWS
 gem 'fog'
 
 aws click services
-s3 
+s3
 create a bucket
+
+
+
+
+single table inheritance->>
+  rails g model user name email type
