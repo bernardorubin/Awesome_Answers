@@ -120,12 +120,10 @@ questions_form add
 
 in question index
 
-
-gem minimagic
-
 brew install imagemagick
 
 gem "mini_magick"
+🔗 https://github.com/minimagick/minimagick
 
 /////////////////////////////
 
@@ -138,7 +136,8 @@ aws click services
 s3
 create a bucket
 
-
+app_keys.rb
+setup_fog.rb
 
 
 single table inheritance->>

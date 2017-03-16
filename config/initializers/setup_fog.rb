@@ -5,7 +5,7 @@ CarrierWave.configure do |config|
     aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
     region:                'us-west-2'
   }
-  config.fog_directory  = 'awesome-answers-bernardo'
+  config.fog_directory  = 'awesomeanswersbernardo'
   config.fog_public     = false                                        # optional, defaults to true
   config.fog_attributes = { 'Cache-Control' => "max-age=#{365.day.to_i}" } # optional, defaults to {}
 end
